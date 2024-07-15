@@ -12,14 +12,14 @@ int main()
 	// 开放平台 https://docmee.cn/open-platform/api
 
 	// 填写你的API-KEY
-	std::string apiKey = "{YOUR API-KEY}";
+	std::string apiKey = "YOUR API KEY";
 
 	// 第三方用户ID（数据隔离）
-	std::string userId = "test";
+	std::string uid = "test";
 	std::string subject = "AI未来的发展";
 
-	// 创建token
-	std::string token = createApiToken(apiKey, userId);
+	// 创建 api token (有效期2小时，建议缓存到redis，同一个 uid 创建时之前的 token 会在10秒内失效)
+	std::string token = createApiToken(apiKey, uid);
 
 	// 直接生成PPT
 	std::cout << "正在生成PPT...\n";
@@ -30,8 +30,8 @@ std::string createApiToken(std::string& apiKey, std::string& uid) {
 	httplib::Headers headers = {
 		{"Api-Key", apiKey}
 	};
-	std::string body = "{\"uid\":\"" + uid + "\"}";
-	HttpResponse resp = postJson("https://docmee.cn", "/user/createApiToken", headers, body);
+	std::string body = "{\"uid\":\"" + uid + "\", \"limit\": null }";
+	HttpResponse resp = postJson("https://docmee.cn", "/api/user/createApiToken", headers, body);
 	if (resp.status != 200) {
 		throw std::runtime_error("创建apiToken失败，httpStatus=" + std::to_string(resp.status));
 	}
