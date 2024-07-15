@@ -1,5 +1,4 @@
-﻿
-#include <iostream>
+﻿#include <iostream>
 #include <iostream>
 #include "httputils.h"
 #include <nlohmann/json.hpp>

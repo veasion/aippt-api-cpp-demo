@@ -1,3 +1,5 @@
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+
 #include "httputils.h"
 #include "httplib.h"
 #include <fstream>
@@ -5,10 +7,10 @@
 #include <sstream>
 #include <map>
 
-#define CPPHTTPLIB_OPENSSL_SUPPORT
 
 ApiResponse postSse(const std::string& domain, const std::string& uri, const httplib::Headers& headers, const std::string& body, StreamConsumer consumer) {
 	httplib::Client cli(domain);
+	cli.enable_server_certificate_verification(false);
 
 	auto res = cli.Post(uri, headers, body, "application/json; charset=utf-8");
 
@@ -38,6 +40,7 @@ ApiResponse postSse(const std::string& domain, const std::string& uri, const htt
 
 ApiResponse postJson(const std::string& domain, const std::string& uri, const httplib::Headers& headers, const std::string& body) {
 	httplib::Client cli(domain);
+	cli.enable_server_certificate_verification(false);
 
 	auto res = cli.Post(uri, headers, body, "application/json; charset=utf-8");
 	if (res) {
@@ -50,6 +53,7 @@ ApiResponse postJson(const std::string& domain, const std::string& uri, const ht
 
 void download(const std::string& domain, const std::string& uri, const std::string& save_path) {
 	httplib::Client cli(domain);
+	cli.enable_server_certificate_verification(false);
 
 	auto res = cli.Get(uri);
 	if (res && res->status == 200) {
