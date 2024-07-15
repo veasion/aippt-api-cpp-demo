@@ -5,7 +5,9 @@
 #include <sstream>
 #include <map>
 
-HttpResponse postSse(const std::string& domain, const std::string& uri, const httplib::Headers& headers, const std::string& body, StreamConsumer consumer) {
+#define CPPHTTPLIB_OPENSSL_SUPPORT
+
+ApiResponse postSse(const std::string& domain, const std::string& uri, const httplib::Headers& headers, const std::string& body, StreamConsumer consumer) {
 	httplib::Client cli(domain);
 
 	auto res = cli.Post(uri, headers, body, "application/json; charset=utf-8");
@@ -34,7 +36,7 @@ HttpResponse postSse(const std::string& domain, const std::string& uri, const ht
 	throw std::runtime_error("Request failed.");
 }
 
-HttpResponse postJson(const std::string& domain, const std::string& uri, const httplib::Headers& headers, const std::string& body) {
+ApiResponse postJson(const std::string& domain, const std::string& uri, const httplib::Headers& headers, const std::string& body) {
 	httplib::Client cli(domain);
 
 	auto res = cli.Post(uri, headers, body, "application/json; charset=utf-8");

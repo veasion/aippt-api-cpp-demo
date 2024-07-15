@@ -6,32 +6,14 @@
 
 using json = nlohmann::json;
 
-int main()
-{
-	// 官网 https://docmee.cn
-	// 开放平台 https://docmee.cn/open-platform/api
-
-	// 填写你的API-KEY
-	std::string apiKey = "YOUR API KEY";
-
-	// 第三方用户ID（数据隔离）
-	std::string uid = "test";
-	std::string subject = "AI未来的发展";
-
-	// 创建 api token (有效期2小时，建议缓存到redis，同一个 uid 创建时之前的 token 会在10秒内失效)
-	std::string token = createApiToken(apiKey, uid);
-
-	// 直接生成PPT
-	std::cout << "正在生成PPT...\n";
-	directGeneratePptx(token, subject);
-}
+const std::string BASE_URL = "https://docmee.cn";
 
 std::string createApiToken(std::string& apiKey, std::string& uid) {
 	httplib::Headers headers = {
 		{"Api-Key", apiKey}
 	};
 	std::string body = "{\"uid\":\"" + uid + "\", \"limit\": null }";
-	HttpResponse resp = postJson("https://docmee.cn", "/api/user/createApiToken", headers, body);
+	ApiResponse resp = postJson(BASE_URL, "/api/user/createApiToken", headers, body);
 	if (resp.status != 200) {
 		throw std::runtime_error("创建apiToken失败，httpStatus=" + std::to_string(resp.status));
 	}
@@ -65,12 +47,15 @@ void directGeneratePptx(std::string& token, std::string& subject) {
 		if (status == 4 && jsonData.contains("result")) {
 			// 生成完成
 			auto pptInfo = jsonData["result"];
-			std::cout << "\npptId: " + pptInfo["id"] + "\n";
-			std::cout << "ppt主题: " + pptInfo["subject"] + "\n";
-			std::cout << "ppt下载链接: " + pptInfo["fileUrl"] + "\n";
+			std::string id = pptInfo["id"];
+			std::string subject = pptInfo["subject"];
+			std::string fileUrl = pptInfo["fileUrl"];
+			std::cout << "\npptId: " + id + "\n";
+			std::cout << "ppt主题: " + subject + "\n";
+			std::cout << "ppt下载链接: " + fileUrl + "\n";
 		}
 	};
-	HttpResponse resp = postSse("https://docmee.cn", "/api/ppt/directGeneratePptx", headers, body, consumer);
+	ApiResponse resp = postSse(BASE_URL, "/api/ppt/directGeneratePptx", headers, body, consumer);
 	if (resp.status != 200) {
 		throw std::runtime_error("生成PPT失败，httpStatus=" + std::to_string(resp.status));
 	}
@@ -79,4 +64,24 @@ void directGeneratePptx(std::string& token, std::string& subject) {
 		std::string message = jsonData["message"];
 		throw std::runtime_error("生成PPT异常：" + message);
 	}
+}
+
+int main()
+{
+	// 官网 https://docmee.cn
+	// 开放平台 https://docmee.cn/open-platform/api
+
+	// 填写你的API-KEY
+	std::string apiKey = "YOUR API KEY";
+
+	// 第三方用户ID（数据隔离）
+	std::string uid = "test";
+	std::string subject = "hello world";
+
+	// 创建 api token (有效期2小时，建议缓存到redis，同一个 uid 创建时之前的 token 会在10秒内失效)
+	std::string token = createApiToken(apiKey, uid);
+
+	// 直接生成PPT
+	std::cout << "正在生成PPT...\n";
+	directGeneratePptx(token, subject);
 }
